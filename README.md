@@ -1,3 +1,4 @@
+[TOC]
 
 # 简易编译器
 本编译器由词法分析(**mLexer**)、语法分析(**mParser**)和语义解析三部分组成。其中库中提供lexer和parser部分的功能实现，可以直接通过包含头文件，进行实例化构造不同需求的lexer和parser，而语义解析部分没有具体的代码提供，但是有相应的例子(**Simplified-SQL**)提供参考。
@@ -18,7 +19,7 @@
 ### 例子
 使用**mLexer**构造一个C程序代码的词法分析，可以解析一下代码并且得到相应的token。
 ```
-#include "myfunc.h"
+#include "file"
 int main(void) {
     int a = 123;
 	printf("Hello world");
@@ -30,14 +31,14 @@ int main(void) {
 使用之前我们应该清楚词法分析器的输出是token流，我们对自己希望得到的token的类型和文本内容应该要很清楚。在这里我们可以简单的设定token的类型一共有四大类：Identifier, keyword, integer, delimiter。
 具体细分如下
 - Identifier: a main
-- keyword: include int void return
+- keyword: # include int void return
 - integer: 123 0
 - delimiter: " ( ) { = ; }
 
 这里我们需要在lexerConfig.h中定义枚举类型mTOKEN_TYPE，这个例子中定义为
 ```
 enum mTOKEN_TYPE {
-NUM, ID, INC, VO, DO, RET, QUO, LP, RP, LB, RB, AS, SE,
+NUM, ID, INC, IN, VO, DO, RET, QUO, LP, RP, LB, RB, AS, SE, PO,
 EPSILON, ENDL, UN,
 mTOKEN_NUM};
 ```
@@ -58,7 +59,7 @@ I_NCLUDE, IN_CLUDE, INC_LUDE, INCL_UDE, INCLU_DE, INCLUD_E, INCLUDE,
 I_NT, IN_T, INT, V_OID, VO_ID, VOI_D, VOID,
 D_OUBLE, DO_UBLE, DOU_BLE, DOUB_LE, DOUBL_E, DOUBLE,
 R_ETURN ,RE_TURN, RET_URN, RETU_RN, RETUR_N, RETURN,
-COMMA, SEMICOLON, LEFT_BRACE, RIGHT_BRACE, ASSIGN, QUOTATION,
+COMMA, SEMICOLON, LEFT_BRACE, RIGHT_BRACE, ASSIGN, QUOTATION, POUND
 LEFT_PAREM, RIGHT_PAREN,
 
 /* 保留状态READY, END, FINISH, ERROR */
@@ -70,7 +71,6 @@ mSTATE_NUM};
 状态转移图由两部分组成：**状态节点**和**转移条件**。**状态节点**在上一步骤已经完成，这一步骤需要根据**转移条件**构建这个图。
 
 ```
-
 	/* 构造状态转移图 */
 	// 状态READY
     states[READY].push(IS_DIGIT, &states[INTEGER])
@@ -122,7 +122,7 @@ mSTATE_NUM};
 	stateIDToTokenType[IDENTIFIER] = ID;
 
 	stateIDToTokenType[INCLUDE] = INC;
-	stateIDToTokenType[INT] = NUM;
+	stateIDToTokenType[INT] = IN;
 	stateIDToTokenType[VOID] = VO;
 	stateIDToTokenType[RETURN] = RET;
 	
@@ -134,6 +134,7 @@ mSTATE_NUM};
 	stateIDToTokenType[ASSIGN] = AS;
 	stateIDToTokenType[COMMA] = COM;
 	stateIDToTokenType[SEMICOLON] = SE;
+	stateIDToTokenType[POUND] = PO;
 ```
 
 额外的，如果我们有特殊的**转移条件**，可以进行设置。
@@ -151,5 +152,169 @@ mSTATE_NUM};
 最后用状态图根节点、状态节点和token的关系、通配转移条件三个参数构造lexer的实例。
 `mLexer* lexer = new mLexer(states, stateIDToTokenType, transferCondition);`
 
+新建一个文件`lexerTest.cpp`，测试代码为
+```
+#include <iostream>
+#include <string>
 
+using namespace std;
+
+#include "mLexer.h"
+
+extern mLexer* mLexerInit();
+
+int main() {
+	mLexer* lexer = mLexerInit();
+	string str = "#include \"file\" int main(void) { int a = 123, b = 456; a = b; return 0; }";
+    lexer->process(str);
+    cout <<str <<endl;
+    lexer->printTokenStream();
+
+    return 0;
+}
+```
+
+测试**输出**为
+```
+#include "file" int main(void) { int a = 123, b = 456; a = b; return 0; }
+Token: 0
+type: 16
+text: #
+value: 0.000000
+
+Token: 1
+type: 2
+text: include
+value: 0.000000
+
+Token: 2
+type: 14
+text: "
+value: 0.000000
+
+Token: 3
+type: 1
+text: file
+value: 0.000000
+
+Token: 4
+type: 14
+text: "
+value: 0.000000
+
+Token: 5
+type: 3
+text: int
+value: 0.000000
+
+Token: 6
+type: 1
+text: main
+value: 0.000000
+
+Token: 7
+type: 8
+text: (
+value: 0.000000
+
+Token: 8
+type: 1
+text: void
+value: 0.000000
+
+Token: 9
+type: 9
+text: )
+value: 0.000000
+
+Token: 10
+type: 10
+text: {
+value: 0.000000
+
+Token: 11
+type: 3
+text: int
+value: 0.000000
+
+Token: 12
+type: 1
+text: a
+value: 0.000000
+
+Token: 13
+type: 12
+text: =
+value: 0.000000
+
+Token: 14
+type: 0
+text: 123
+value: 123.000000
+
+Token: 15
+type: 15
+text: ,
+value: 0.000000
+
+Token: 16
+type: 1
+text: b
+value: 0.000000
+
+Token: 17
+type: 12
+text: =
+value: 0.000000
+
+Token: 18
+type: 0
+text: 456
+value: 456.000000
+
+Token: 19
+type: 13
+text: ;
+value: 0.000000
+
+Token: 20
+type: 1
+text: a
+value: 0.000000
+
+Token: 21
+type: 12
+text: =
+value: 0.000000
+
+Token: 22
+type: 1
+text: b
+value: 0.000000
+
+Token: 23
+type: 13
+text: ;
+value: 0.000000
+
+Token: 24
+type: 6
+text: return
+value: 0.000000
+
+Token: 25
+type: 0
+text: 0
+value: 0.000000
+
+Token: 26
+type: 13
+text: ;
+value: 0.000000
+
+Token: 27
+type: 11
+text: }
+value: 0.000000
+```
 
