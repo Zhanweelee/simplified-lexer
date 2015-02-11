@@ -1,8 +1,13 @@
 # 简易编译器
 本编译器由词法分析(**mLexer**)、语法分析(**mParser**)和语义解析三部分组成。其中库中提供lexer和parser部分的功能实现，可以直接通过包含头文件，进行实例化构造不同需求的lexer和parser，而语义解析部分没有具体的代码提供，但是有相应的例子(**Simplified-SQL**)提供参考。
+项目地址(simplified-compiler)：https://github.com/Zhanweelee/simplified-compiler
+
+# 简易词法分析器
 
 ## 词法分析
 @[mLexer|词法分析器|有穷自动机|编译器]
+
+本项目是simplified-compiler的子项目，是编译器的第一部分词法分析过程，所使用的类名为mLexer。
 
 **mLexer**是词法分析器的类名，使用者可以自行进行继承和封装，采用FSM进行状态转移，因此我们在使用前需要定义状态、状态终止时对应的token类型。
 
