@@ -1,4 +1,5 @@
-#include "lexerConfig.h"
+#include "lexerFuncions.h"
+#include <stdlib.h>
 
 bool isLetter (char ch) {
     if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))

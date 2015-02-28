@@ -8,7 +8,7 @@ using namespace std;
 #ifndef M_LEXER
 #define M_LEXER
 
-#include "lexerConfig.h"
+#include "lexerFuncions.h"
 
 typedef bool (*charTypeCheck)(char);
 
