@@ -16,8 +16,8 @@
 ### 使用步骤
 可以概括为三个步骤：
 1. 包含头文件`#include "mLexer.h"`
-2. 在`lexerConfig.h`中定义`enum mTOKEN_TYPE`
-3. 在`lexerConfig.h`中定义`enum mSTATE_TYPE`
+2. 在`mToken.h`中定义`enum mTOKEN_TYPE`
+3. 在`mState.h`中定义`enum mSTATE_TYPE`
 4. 在`mLexerInit.cpp`中定义状态转移图
 5. 实例化mLexer，调用process方法对字符串进行处理
 
@@ -32,7 +32,7 @@ int main(void) {
 }
 ```
 
-#### 1. 在`lexerConfig.h`中定义token类型
+#### 1. 在`mToken.h`中定义token类型
 使用之前我们应该清楚词法分析器的输出是token流，我们对自己希望得到的token的类型和文本内容应该要很清楚。在这里我们可以简单的设定token的类型一共有四大类：Identifier, keyword, integer, delimiter。
 具体细分如下
 - Identifier: a main
@@ -48,7 +48,7 @@ EPSILON, ENDL, UN,
 mTOKEN_NUM};
 ```
 
-#### 2. 在`lexerConfig.h`中定义状态转移类型
+#### 2. 在`mState.h`中定义状态转移类型
 > ** 有限状态机 **（英语：finite-state machine，缩写：FSM）又称有限状态自动机，简称状态机，是表示有限个状态以及在这些状态之间的转移和动作等行为的数学模型。 --[维基百科](http://en.wikipedia.org/wiki/Finite-state_machine)
 
 构建有限状态自动机我们需要状态节点和状态转移条件。这一步骤中我们先简单讨论状态节点的定义。词法分析部分中采用的有限状态机每次读取一个字符，然后根据状态图中转移条件进行转移，因此我们需要把所有可能出现的下一字符都定义相应的状态。实际上，我们只需要考虑符合我们要求的条件赋予特定的状态，其他都定义为ERROR状态即可。
